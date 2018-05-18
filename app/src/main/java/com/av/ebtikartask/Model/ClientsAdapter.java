@@ -1,16 +1,25 @@
 package com.av.ebtikartask.Model;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.av.ebtikartask.R;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.av.ebtikartask.MainActivity.STORAGE_PERMISSION_CODE_CALL_PHONE;
 
 /**
  * Created by Maiada on 5/18/2018.
@@ -33,9 +42,9 @@ public class ClientsAdapter extends RecyclerView.Adapter<ClientsHolder> {
     }
 
     @Override
-    public void onBindViewHolder(ClientsHolder holder, int position) {
+    public void onBindViewHolder(final ClientsHolder holder, int position) {
 
-        Clients clients = clientsList.get(position);
+        final Clients clients = clientsList.get(position);
 
         holder.userName.setText(clients.getName());
         holder.userAge.setText(clients.getAge());
@@ -44,8 +53,11 @@ public class ClientsAdapter extends RecyclerView.Adapter<ClientsHolder> {
         for(int i=0;i<interests.size();i++){
             Interest  interest = clients.getInterestList().get(i);
             TextView textView = new TextView(activity);
-            textView.setPadding(0,0,15,0);
-            textView.setText(interest.getTitle());
+            if(i==interests.size()-1)
+               textView.setText(interest.getTitle()+".");
+            else
+               textView.setText(interest.getTitle()+" , ");
+
             holder.linearLayoutInterests.addView(textView);
         }
 
@@ -54,11 +66,25 @@ public class ClientsAdapter extends RecyclerView.Adapter<ClientsHolder> {
             Language  language = clients.getLanguageList().get(i);
             TextView textView = new TextView(activity);
             textView.setPadding(0,0,15,0);
-            textView.setText(language.getTitle()+"  :  "+ language.getLevel());
+            textView.setText(language.getTitle()+" - "+ language.getLevel());
             holder.linearLayoutLanguages.addView(textView);
         }
 
 
+
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(checkPermissions()){
+                       String mobileNumber = clients.getMobile();
+                       activity.startActivity(new Intent(Intent.ACTION_DIAL).setData(Uri.parse("tel:"+mobileNumber)));
+                }else {
+                    Toast.makeText(activity,"يجب السماح لإجراء اتصال  ", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
 
 
     }
@@ -67,4 +93,24 @@ public class ClientsAdapter extends RecyclerView.Adapter<ClientsHolder> {
     public int getItemCount() {
         return clientsList.size();
     }
+
+
+    private boolean checkPermissions(){
+        int permissionLocation = ContextCompat.checkSelfPermission(activity,
+                Manifest.permission.CALL_PHONE);
+        List<String> listPermissionsNeeded = new ArrayList<>();
+        if (permissionLocation != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.CALL_PHONE);
+            if (!listPermissionsNeeded.isEmpty()) {
+                ActivityCompat.requestPermissions(activity,
+                        listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), STORAGE_PERMISSION_CODE_CALL_PHONE);
+            }
+            return false;
+        }else{
+            return  true;
+        }
+
+    }
+
 }
+

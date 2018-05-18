@@ -9,14 +9,18 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 
 import com.av.ebtikartask.Model.Clients;
 import com.av.ebtikartask.Model.ClientsAdapter;
+import com.av.ebtikartask.PersistsData.StoreData;
 import com.av.ebtikartask.databinding.ActivityMainBinding;
 import com.av.ebtikartask.networkUtilities.RequestData;
 import com.av.ebtikartask.networkUtilities.GetCallback;
 import com.blikoon.qrcodescanner.QrCodeActivity;
+
+
 
 import org.json.JSONArray;
 
@@ -30,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int STORAGE_PERMISSION_CODE_CAMERA = 100;
     private static final int REQUEST_CODE_QR_SCAN = 101;
+    public static final int STORAGE_PERMISSION_CODE_CALL_PHONE = 102;
+
+
 
 
 
@@ -39,21 +46,50 @@ public class MainActivity extends AppCompatActivity {
         //setContentView(R.layout.activity_main);
         activityMainBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
 
+
+
+        Setup_UI();
+
+
+
+
+
+    }
+
+    private void Setup_UI(){
+
         activityMainBinding.rvClientsList.setLayoutManager(new LinearLayoutManager(this));
         activityMainBinding.rvClientsList.setHasFixedSize(true);
 
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(activityMainBinding.rvClientsList.getContext(),
+                DividerItemDecoration.VERTICAL);
+        activityMainBinding.rvClientsList.addItemDecoration(dividerItemDecoration);
 
-        requestCameraPermission();
-    }
+        String savedApiLink =new StoreData(this).loadApiLink();
+        if(requestCameraPermission()){
+            if(!savedApiLink.equals(""))
+                requestDataFromApi(savedApiLink);
+            else
+                scanQRCode();
 
-    private void requestCameraPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.CAMERA}, STORAGE_PERMISSION_CODE_CAMERA);
-            //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
-        } else {
-            // Android version is lesser than 6.0 or the permission is already granted.
-            scanQRCode();
+        }else {
+            new StoreData(this).saveApiLink("");
+            requestCameraPermission();
         }
+    }
+    private boolean requestCameraPermission() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.CAMERA}, STORAGE_PERMISSION_CODE_CAMERA);
+                //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
+                return false;
+            } else {
+                // Android version is lesser than 6.0 or the permission is already granted.
+              //  scanQRCode();
+                return  true;
+            }
+
+
+
 
 
     }
@@ -72,8 +108,8 @@ public class MainActivity extends AppCompatActivity {
                 return;
             //Getting the passed result
             String result = data.getStringExtra("com.blikoon.qrcodescanner.got_qr_scan_relult");
+            new StoreData(this).saveApiLink(result);
             requestDataFromApi(result);
-
 
         }
     }
@@ -88,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
                 clientsAdapter = new ClientsAdapter(MainActivity.this,clientsArrayList);
                 activityMainBinding.rvClientsList.setAdapter(clientsAdapter);
                 clientsAdapter.notifyDataSetChanged();
+
 
 
             }
@@ -106,7 +143,8 @@ public class MainActivity extends AppCompatActivity {
         //If permission is granted
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             //     Toast.makeText(this, "Permission granted now you can select img or video", Toast.LENGTH_LONG).show();
-            scanQRCode();
+               if(requestCode == REQUEST_CODE_QR_SCAN||requestCode==STORAGE_PERMISSION_CODE_CAMERA)
+                 scanQRCode();
         } else {
 
             requestCameraPermission();
