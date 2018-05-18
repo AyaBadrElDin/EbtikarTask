@@ -66,7 +66,7 @@ public class ClientsAdapter extends RecyclerView.Adapter<ClientsHolder> {
             Language  language = clients.getLanguageList().get(i);
             TextView textView = new TextView(activity);
             textView.setPadding(0,0,15,0);
-            textView.setText(language.getTitle()+" - "+ language.getLevel());
+            textView.setText(language.getTitle()+" , "+ language.getLevel()+".");
             holder.linearLayoutLanguages.addView(textView);
         }
 
