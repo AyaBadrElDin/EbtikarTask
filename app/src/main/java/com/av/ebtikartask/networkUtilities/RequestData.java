@@ -7,10 +7,15 @@ import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.av.ebtikartask.Model.Clients;
+import com.av.ebtikartask.Model.Interest;
+import com.av.ebtikartask.Model.Language;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 
 public class RequestData {
@@ -25,8 +30,44 @@ public class RequestData {
              public void onResponse(JSONObject response) {
 
                  try {
-                     JSONArray jsonArray = response.getJSONArray("clients");
-                     onRequestDataCallback.onSuccess(jsonArray);
+                     ArrayList<Clients> clientsList = new ArrayList<>();
+                     JSONArray clientsJsonArray = response.getJSONArray("clients");
+                     if(clientsJsonArray.length()!=0){
+                         for(int c=0;c<clientsJsonArray.length();c++){
+                             JSONObject clientsJsonObject = clientsJsonArray.getJSONObject(c);
+                             Clients clients = new Clients();
+                             clients.setName(clientsJsonObject.getString("name"));
+                             clients.setAge(clientsJsonObject.getString("age"));
+                             clients.setMobile(clientsJsonObject.getString("mobile"));
+
+                             ArrayList<Interest>  interestsList = new ArrayList<>();
+                             JSONArray interestsJsonArray = clientsJsonObject.getJSONArray("interests");
+                             for(int i=0;i<interestsJsonArray.length();i++){
+                                 JSONObject interestsJsonObject = interestsJsonArray.getJSONObject(i);
+                                 Interest interest = new Interest();
+                                 interest.setTitle(interestsJsonObject.getString("title"));
+                                 interestsList.add(interest);
+                             }
+                             clients.setInterestList(interestsList);
+
+                             ArrayList<Language>  languagesList = new ArrayList<>();
+                             JSONArray languagesJsonArray = clientsJsonObject.getJSONArray("languages");
+                             for(int l=0;l<languagesJsonArray.length();l++){
+                                 JSONObject languagesJsonObject = languagesJsonArray.getJSONObject(l);
+                                 Language language = new Language();
+                                 language.setTitle(languagesJsonObject.getString("title"));
+                                 language.setLevel(languagesJsonObject.getString("level"));
+                                 languagesList.add(language);
+                             }
+                             clients.setLanguageList(languagesList);
+                             clientsList.add(clients);
+
+
+                         }
+                     }
+
+
+                     onRequestDataCallback.onSuccess(clientsList);
 
                  } catch (JSONException e) {
                      e.printStackTrace();

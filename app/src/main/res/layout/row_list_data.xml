@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_margin="10dp"
+    android:padding="10dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -13,6 +14,7 @@
         />
 
     <TextView
+        android:layout_marginTop="5dp"
         android:layout_below="@+id/tv_user_name"
         android:id="@+id/tv_user_age"
         android:layout_width="wrap_content"
@@ -20,9 +22,19 @@
         tools:text="@string/age"
         />
 
-    <LinearLayout
-        android:id="@+id/linear_interests"
+    <TextView
+        android:textStyle="bold"
+        android:layout_marginTop="5dp"
         android:layout_below="@+id/tv_user_age"
+        android:id="@+id/tv_interests"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/interest"
+        />
+    <LinearLayout
+        android:layout_marginTop="5dp"
+        android:id="@+id/linear_interests"
+        android:layout_below="@+id/tv_interests"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -30,12 +42,23 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/linear_languages"
+    <TextView
+        android:textStyle="bold"
+        android:layout_marginTop="5dp"
         android:layout_below="@+id/linear_interests"
+        android:id="@+id/tv_languages"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:text="@string/language"
+        />
+
+    <LinearLayout
+        android:layout_marginTop="5dp"
+        android:id="@+id/linear_languages"
+        android:layout_below="@+id/tv_languages"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
     </LinearLayout>
 

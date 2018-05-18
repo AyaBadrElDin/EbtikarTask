@@ -4,28 +4,44 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 
+import com.av.ebtikartask.Model.Clients;
+import com.av.ebtikartask.Model.ClientsAdapter;
+import com.av.ebtikartask.databinding.ActivityMainBinding;
 import com.av.ebtikartask.networkUtilities.RequestData;
 import com.av.ebtikartask.networkUtilities.GetCallback;
 import com.blikoon.qrcodescanner.QrCodeActivity;
 
 import org.json.JSONArray;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
+
+    private ActivityMainBinding activityMainBinding;
+    private ClientsAdapter clientsAdapter;
 
     private static final int STORAGE_PERMISSION_CODE_CAMERA = 100;
     private static final int REQUEST_CODE_QR_SCAN = 101;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        //setContentView(R.layout.activity_main);
+        activityMainBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
+
+        activityMainBinding.rvClientsList.setLayoutManager(new LinearLayoutManager(this));
+        activityMainBinding.rvClientsList.setHasFixedSize(true);
+
 
         requestCameraPermission();
     }
@@ -67,8 +83,11 @@ public class MainActivity extends AppCompatActivity {
 
         RequestData.getData(MainActivity.this,result, new GetCallback.onRequestData() {
             @Override
-            public void onSuccess(JSONArray jsonObject) {
+            public void onSuccess(ArrayList<Clients> clientsArrayList) {
 
+                clientsAdapter = new ClientsAdapter(MainActivity.this,clientsArrayList);
+                activityMainBinding.rvClientsList.setAdapter(clientsAdapter);
+                clientsAdapter.notifyDataSetChanged();
 
 
             }
