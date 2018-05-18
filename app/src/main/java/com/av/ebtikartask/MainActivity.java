@@ -8,10 +8,12 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Toast;
 
+import com.av.ebtikartask.networkUtilities.RequestData;
+import com.av.ebtikartask.networkUtilities.GetCallback;
 import com.blikoon.qrcodescanner.QrCodeActivity;
+
+import org.json.JSONArray;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,9 +56,29 @@ public class MainActivity extends AppCompatActivity {
                 return;
             //Getting the passed result
             String result = data.getStringExtra("com.blikoon.qrcodescanner.got_qr_scan_relult");
-            Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
+            requestDataFromApi(result);
+
 
         }
+    }
+
+    private void requestDataFromApi(String result) {
+
+
+        RequestData.getData(MainActivity.this,result, new GetCallback.onRequestData() {
+            @Override
+            public void onSuccess(JSONArray jsonObject) {
+
+
+
+            }
+
+            @Override
+            public void onFailure(String error) {
+
+            }
+        });
+
     }
 
     @TargetApi(Build.VERSION_CODES.M)
