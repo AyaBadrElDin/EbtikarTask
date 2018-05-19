@@ -5,6 +5,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.av.ebtikartask.PersistsData.StoreData;
 import com.av.ebtikartask.R;
 
 import java.util.ArrayList;
@@ -74,11 +78,21 @@ public class ClientsAdapter extends RecyclerView.Adapter<ClientsHolder> {
 
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
                 if(checkPermissions()){
-                       String mobileNumber = clients.getMobile();
-                       activity.startActivity(new Intent(Intent.ACTION_DIAL).setData(Uri.parse("tel:"+mobileNumber)));
+                      //String mobileNumber = clients.getMobile();
+
+                    if (!Settings.canDrawOverlays(activity)) {
+                        // You don't have permission
+                          checkPermissionForOverLayour();
+                    } else {
+                        // Do as per your logic
+                    new StoreData(activity).saveUserToCall(clients.getName());
+                        String mobileNumber = clients.getMobile();
+                        activity.startActivity(new Intent(Intent.ACTION_DIAL).setData(Uri.parse("tel:"+mobileNumber)));
+                    }
                 }else {
                     Toast.makeText(activity,"يجب السماح لإجراء اتصال  ", Toast.LENGTH_SHORT).show();
                 }
@@ -112,5 +126,16 @@ public class ClientsAdapter extends RecyclerView.Adapter<ClientsHolder> {
 
     }
 
+
+    public void checkPermissionForOverLayour() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(activity)) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" +activity. getPackageName()));
+               activity.startActivity(intent);
+                Toast.makeText(activity, "To show OverLayout, you must allow this permission", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 }
 
